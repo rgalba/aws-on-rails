@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "ECS_CLUSTER=rails-cluster" >> /etc/ecs/ecs.config
