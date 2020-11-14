@@ -1,0 +1,32 @@
+Parameters:
+  EC2InstanceType:
+    Default: t2.medium
+    Description: Instance with 2vCPU + 4GB RAM
+    Type: String
+  AutoHibernateTimeout:
+    Default: 30
+    Description: How many minutes idle before shutting down the IDE
+    Type: Number
+Resources:
+  C9IDE:
+    Type: AWS::Cloud9::EnvironmentEC2
+    Properties:
+      Repositories:
+      - RepositoryUrl: https://github.com/rgalba/aws-on-rails.git
+        PathComponent: aws-on-rails
+      Description: Cloud9 IDE
+      AutomaticStopTimeMinutes:
+        Ref: AutoHibernateTimeout
+      InstanceType:
+        Ref: EC2InstanceType
+      Name:
+        Ref: AWS::StackName
+
+Outputs:
+  Cloud9URL:
+    Description: Cloud9 Environment
+    Value:
+      Fn::Join:
+      - ''
+      - - !Sub https://${AWS::Region}.console.aws.amazon.com/cloud9/ide/
+        - !Ref 'C9IDE'

@@ -1,11 +1,31 @@
 # AWS on Rails
 
-## Pre-requisites
+## AWS Cloud9 setup
 
-Use `guru` profile:
-> export AWS_PROFILE=guru
+In order to setup a Cloud9 env, follows the steps to create it using aws cli.
+Requirements:
+
+- AWS account
+- AWS CLI properly configured
+
+1. Creates the environment:
+
+```
+aws cloudformation create-stack --stack-name rails-cloud9 --template-body file://automation/cloud9.yml
+```
+
+> If you want to check the stack progress, you can watch it with: `watch aws cloudformation describe-stack-events --stack-name rails-cloud9`
+
+2. Get the URL to access the environment:
+
+```
+aws cloudformation describe-stacks --stack-name rails-cloud9 --query "Stacks[0].Outputs[0].OutputValue" --output text | pbcopy
+```
 
 ## Setting up
+
+(Optional) Use `guru` profile:
+> export AWS_PROFILE=guru
 
 1 - Create key pair
 
@@ -17,7 +37,7 @@ chmod 400 rails-key-pair.pem
 2 - Create security group
 
 ```sh
-SG_ID=$(aws ec2 create-security-group --group-name rails-ecs-sg --description 'security group for ECS')
+SG_ID=$(aws ec2 create-security-group --group-name rails-ecs-sg --description 'security group for ECS' --output text)
 ```
 
 3 - Authorize SSH and HTTP for public access
@@ -206,7 +226,8 @@ $ aws ec2 run-instances --image-id ami-2b3b6041 --count 1 --instance-type t2.mic
 ## List cluster
 
 ```sh
-$ aws ecs list-container-instances --cluster rails-cluster
+$ CONTAINER_INSTANCE_ID=$(aws ecs list-container-instances --cluster rails-cluster --query 'containerInstanceArns[0]' --output text)
+$ aws ecs describe-container-instances --cluster rails-cluster --container-instances $CONTAINER_INSTANCE_ID
 ```
 
 Ideia de Skill: Meus documentos. Um cofre onde a Alexa saberá numeros de documento como CPF, RG, Titulo de eleitor por meio de senha.
